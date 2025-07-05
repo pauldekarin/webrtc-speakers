@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Speakers</title>
+
+    <script src="http://localhost:35729/livereload.js"></script>
+
+    <script th:src="@{/js/signaling_channel.js}" type="module"></script>
+    <script th:src="@{/js/peer.js}" type="module"></script>
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <div>
+        <video autoplay id="localVideo" width="640" height="480"></video>
+        <video autoplay id="remoteVideo" width="640" height="480"></video>
+    </div>
+</body>
+</html>

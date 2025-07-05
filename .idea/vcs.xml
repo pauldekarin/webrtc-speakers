@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/cpp/cmake-build-debug/_deps/spdlog-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/depot_tools" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/esp32/esp-c3dev/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/esp32/esp-heltec-wb32/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/esp32/esp-wrover-kit/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/lhp/esp32-heltec-128-64/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/lhp/esp32-waveshare-104-212/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/lhp/esp32-waveshare-122-250-bw/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/lhp/esp32-waveshare-400-300-4gray/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/lhp/esp32-waveshare-600-448-7col/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/lhp/esp32-wrover-kit-320-200/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/lhp/esp32s2-kaluga-320-200/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/pico/pico-sspc-binance/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/rt595/hello_world/libwebsockets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/nlohmann_json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/pulseaudio" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/pulseaudio/subprojects/orc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/pulseaudio/subprojects/webrtc-audio-processing" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/webrtc/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/webrtc/src/buildtools" vcs="Git" />
+  </component>
+</project>
