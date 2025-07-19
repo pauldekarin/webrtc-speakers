@@ -144,7 +144,7 @@ void SignalingClient::connect(const std::string &address, const std::string &pat
     this->wsi_ = conn;
 }
 
-void SignalingClient::send(const std::string &message) const
+void SignalingClient::send(const std::string &message)
 {
     this->messages_->send(message);
 }

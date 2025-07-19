@@ -267,8 +267,7 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         ${WEBRTC_LIB}
-                ${X11_LIBRARIES}
-
+        ${X11_LIBRARIES}
         nlohmann_json
 )
 

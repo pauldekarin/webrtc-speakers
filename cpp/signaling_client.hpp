@@ -18,6 +18,8 @@
 #include <condition_variable>
 #include <mutex>
 
+#include "signaling_client_interface.hpp"
+
 class Conductor;
 
 class Messages
@@ -44,15 +46,15 @@ private:
     std::thread loop_thread_;
 };
 
-class SignalingClient {
+class SignalingClient: public SignalingClientInterface{
 public:
     SignalingClient(Conductor *conductor);
-    ~SignalingClient();
+    ~SignalingClient() override;
 
-    void connect(const std::string &address, const std::string &path, int port);
-    void send(const std::string &message) const;
-    void receive(const char *p_message, size_t len) ;
-    void disconnect();
+    void connect(const std::string &address, const std::string &path, int port) override;
+    void send(const std::string &message)  override;
+    void receive(const char *p_message, size_t len)  override;
+    void disconnect() override;
     void destroy();
     void join();
 

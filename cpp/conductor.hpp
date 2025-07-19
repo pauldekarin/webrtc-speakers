@@ -6,7 +6,7 @@
 #define CONDUCTOR_H
 
 class PeerConnection;
-class SignalingClient;
+class SignalingClientInterface;
 
 #include <string>
 #include <mutex>
@@ -32,13 +32,13 @@ public:
     Conductor();
 
     void set_peer_connection(PeerConnection *peer_connection);
-    void set_signaling_client(SignalingClient *signaling_client);
+    void set_signaling_client(SignalingClientInterface *signaling_client);
 
     void send_message(const std::string &message);
     void handle_message(const std::string &message);
 
 private:
-    SignalingClient* signaling_client_;
+    SignalingClientInterface* signaling_client_;
     PeerConnection* peer_connection_;
     mutable int ref_count_;
     mutable std::mutex ref_mutex_;
