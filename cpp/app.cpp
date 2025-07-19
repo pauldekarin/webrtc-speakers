@@ -3,8 +3,11 @@
 #include "conductor.hpp"
 #include "signaling_client.hpp"
 #include "peer_connection.hpp"
+#include "rtc_base/ssl_adapter.h"
 
 int main(int argc, const char** argv) {
+    rtc::InitializeSSL();
+
     struct lws_context_creation_info info;
     const char *p;
     int n = 0;
@@ -15,13 +18,13 @@ int main(int argc, const char** argv) {
     Conductor *conductor = new Conductor();
 
     std::shared_ptr<SignalingClient> signaling_client = std::make_shared<SignalingClient>(conductor);
-    std::shared_ptr<PeerConnection> peer_connection = std::make_shared<PeerConnection>(conductor);
-
-    conductor->set_peer_connection(peer_connection.get());
-    conductor->set_signaling_client(signaling_client.get());
+    rtc::scoped_refptr<PeerConnection> peer_connection = rtc::make_ref_counted<PeerConnection>(conductor);
+    // peer_connection->AddRef();
+    // conductor->set_peer_connection(peer_connection.get());
+    // conductor->set_signaling_client(signaling_client.get());
 
     peer_connection->call();
-    signaling_client->connect("192.168.0.45", "signaling", 8444);
+    // signaling_client->connect("192.168.0.45", "signaling", 8444);
 
     std::string line;
 
@@ -32,5 +35,7 @@ int main(int argc, const char** argv) {
 
         signaling_client->send(line);
     }
+
+    rtc::CleanupSSL();
     return 0;
 }

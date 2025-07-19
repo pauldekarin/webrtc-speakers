@@ -214,7 +214,7 @@ int SignalingClient::callback_(struct lws *wsi, enum lws_callback_reasons reason
         break;
 
         case LWS_CALLBACK_CLIENT_RECEIVE:
-            lwsl_hexdump_notice(in, len);
+            // lwsl_hexdump_notice(in, len);
 
             if (client != nullptr && in != nullptr)
             {

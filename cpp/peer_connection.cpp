@@ -39,7 +39,13 @@ void PeerConnection::call(){
       nullptr /* audio_mixer */, nullptr);
 
     if(factory){
+    webrtc::PeerConnectionInterface::IceServer server;
+        server.urls.push_back("stun:stun.l.google.com:19302");
+
         webrtc::PeerConnectionInterface::RTCConfiguration configuration;
+        configuration.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+        configuration.servers.push_back(server);
+
         webrtc::PeerConnectionDependencies dependencies(this);
 
         auto result = factory->CreatePeerConnectionOrError(configuration, std::move(dependencies));
@@ -64,14 +70,32 @@ void PeerConnection::call(){
             std::cerr << "Failed to add Audio Track" << std::endl;
         }
 
-        // this->peer_connection_->CreateOffer(this->conductor_->get_create_sdp_observer(), webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+        this->peer_connection_->CreateOffer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
 
       }else {
           std::cerr << "Failed to create PeerConnectionFactory" << std::endl;
       }
-
-    std::cout << "called" << std::endl;
   }
+
+void PeerConnection::handle_offer(const std::string& sdp)
+{
+    std::cout << __func__ << std::endl;
+
+    const absl::optional<webrtc::SdpType> sdp_type = webrtc::SdpTypeFromString("offer");
+    if (!sdp_type) {
+        return;
+    }
+
+    webrtc::SdpParseError error;
+    std::unique_ptr<webrtc::SessionDescriptionInterface> remote_sdp =
+        webrtc::CreateSessionDescription(*sdp_type, sdp, &error);
+    if (!remote_sdp) {
+        return;
+    }
+
+    this->peer_connection_->SetRemoteDescription(DummySetSessionDescriptionObserver::Create().get(), remote_sdp.release());
+    this->peer_connection_->CreateAnswer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+}
 
 void PeerConnection::OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state)
 {
@@ -166,6 +190,33 @@ void PeerConnection::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterfa
 void PeerConnection::OnInterestingUsage(int i)
 {
     PeerConnectionObserver::OnInterestingUsage(i);
+}
+
+void PeerConnection::OnSuccess(webrtc::SessionDescriptionInterface* desc)
+{
+    std::cout << "fere" << std::endl;
+    this->peer_connection_->SetLocalDescription(DummySetSessionDescriptionObserver::Create().get(), desc);
+    // this->peer_connection_->signaling_thread()->PostTask([pc = this->peer_connection_, desc = desc]()
+    // {
+    //     pc->SetLocalDescription(DummySetSessionDescriptionObserver::Create().get(), desc);
+    // });
+    std::string type = webrtc::SdpTypeToString(desc->GetType());
+    std::string sdp;
+    desc->ToString(&sdp);
+
+    nlohmann::json offer = {
+        {"type",type},
+        {"sdp",sdp}
+    };
+
+    // if (this->conductor_ != nullptr)
+    // {
+    //     this->conductor_->send_message(offer.dump());
+    // }
+}
+
+void PeerConnection::OnFailure(webrtc::RTCError error)
+{
 }
 
 webrtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> createFactory(){

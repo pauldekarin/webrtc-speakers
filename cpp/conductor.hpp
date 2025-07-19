@@ -14,16 +14,20 @@ class SignalingClient;
 #include "pc/webrtc_session_description_factory.h"
 #include "absl/types/optional.h"
 
-class DummySetSessionDescriptionObserver: public webrtc::SetSessionDescriptionObserver
-{
+class DummySetSessionDescriptionObserver
+    : public webrtc::SetSessionDescriptionObserver {
 public:
-    void OnSuccess() override;
-    void OnFailure(webrtc::RTCError error) override;
-
-    static rtc::scoped_refptr<DummySetSessionDescriptionObserver> Create();
+    static rtc::scoped_refptr<DummySetSessionDescriptionObserver> Create() {
+        return rtc::make_ref_counted<DummySetSessionDescriptionObserver>();
+    }
+    virtual void OnSuccess() { RTC_LOG(LS_INFO) << __FUNCTION__; }
+    virtual void OnFailure(webrtc::RTCError error) {
+        RTC_LOG(LS_INFO) << __FUNCTION__ << " " << ToString(error.type()) << ": "
+                         << error.message();
+    }
 };
 
-class Conductor: public webrtc::CreateSessionDescriptionObserver, public webrtc::SetSessionDescriptionObserver{
+class Conductor{
 public:
     Conductor();
 
@@ -32,19 +36,6 @@ public:
 
     void send_message(const std::string &message);
     void handle_message(const std::string &message);
-
-    void AddRef() const override;
-    webrtc::RefCountReleaseStatus Release() const override;
-    void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;
-    void OnFailure(webrtc::RTCError error) override;
-
-    webrtc::CreateSessionDescriptionObserver* get_create_sdp_observer();
-
-protected:
-    ~Conductor() override;
-
-public:
-    void OnSuccess() override;
 
 private:
     SignalingClient* signaling_client_;
