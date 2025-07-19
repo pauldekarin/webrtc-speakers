@@ -6,7 +6,11 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <excludeRoots>
+      <file path="$PROJECT_DIR$/boringssl" />
       <file path="$PROJECT_DIR$/depot_tools" />
+      <file path="$PROJECT_DIR$/webrtc-native-build/3rdParty" />
+      <file path="$PROJECT_DIR$/webrtc-native-build/build" />
+      <file path="$PROJECT_DIR$/webrtc-native/src/out" />
     </excludeRoots>
   </component>
 </project>

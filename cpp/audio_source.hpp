@@ -29,7 +29,7 @@ public:
 
     void RemoveSink(webrtc::AudioTrackSinkInterface *) override;
 
-    const webrtc::AudioOptions options() const override;
+    const cricket::AudioOptions options() const override;
 
     ~AudioSource() override;
 };

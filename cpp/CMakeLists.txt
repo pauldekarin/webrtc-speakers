@@ -11,7 +11,7 @@
 # set(PULSEAUDIO_BUILD_DIR "${PULSEAUDIO_DIR}/build")
 # set(WEBRTC_DIR "${CMAKE_SOURCE_DIR}/webrtc/src")
 
-# set(SOURCES 
+# set(SOURCES
 #     ${SOURCE_DIR}/main.cpp
 # )
 
@@ -68,86 +68,157 @@
 
 # add_executable(${PROJECT_NAME} ${SOURCES})
 
-# target_include_directories(${PROJECT_NAME} PRIVATE 
+# target_include_directories(${PROJECT_NAME} PRIVATE
 #     ${PULSEAUDIO_BUILD_INCLUDE_DIR}
 #     ${PULSEAUDIO_INCLUDE_DIR}
 #     ${PORTAUDIO_INCLUDE_DIR})
 
-# target_link_libraries(${PROJECT_NAME} PRIVATE 
+# target_link_libraries(${PROJECT_NAME} PRIVATE
 #     ${PULSEAUDIO_LIB}
 #     ${PULSEAUDIO_SIMPLE_LIB}
 #     ${PORTAUDIO_LIB})
 
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-cmake_minimum_required(VERSION 3.10)
+#cmake_minimum_required(VERSION 3.10)
+#project(webrtc-speakers CXX)
+#
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#
+## Явное указание пути к OpenSSL
+##set(OPENSSL_ROOT_DIR /usr/local/ssl)
+##set(OPENSSL_INCLUDE_DIR /usr/local/ssl/include)
+##set(OPENSSL_LIBRARIES /usr/local/ssl/lib)
+#
+#add_subdirectory(${CMAKE_SOURCE_DIR}/boringssl)
+#
+#set(OPENSSL_LIBRARIES "/usr/boringssl/lib/libcrypto.so:/usr/boringssl/lib/libssl.so")
+#set(OPENSSL_INCLUDE_DIRS "/usr/boringssl/include")
+#set(WEBRTC_OUT_DIR "${CMAKE_SOURCE_DIR}/webrtc-native/src/out/Default")
+#set(WEBRTC_DIR "${CMAKE_SOURCE_DIR}/webrtc-native/src")
+#set(JSON_DIR "${CMAKE_SOURCE_DIR}/nlohmann_json")
+#
+#add_subdirectory(${JSON_DIR})
+#
+#add_compile_options(
+#        -DWEBRTC_POSIX=1
+#        -DWEBRTC_LINUX=1
+#        -fpermissive
+#)
+#
+#set(CMAKE_C_COMPILER clang)
+#set(CMAKE_CXX_COMPILER clang++)
+##add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=shorten-64-to-32")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address -fuse-ld=lld -m64")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+#
+## Libwebsockets configuration
+#
+## Disable BoringSSL and use OpenSSL instead, as BoringSSL is not configured
+#
+#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+## Disable Werror for shorten-64-to-32 to avoid treating this warning as an error
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=shorten-64-to-32" CACHE STRING "C compiler flags" FORCE)
+#
+##add_subdirectory(${CMAKE_SOURCE_DIR}/libwebsockets)
+##find_package(Libwebsockets REQUIRED)
+#
+## Libwebsockets
+#set(LWS_WITH_BORINGSSL ON CACHE BOOL "Use BoringSSL" FORCE)
+#set(LWS_WITH_SSL ON CACHE BOOL "Enable SSL support" FORCE)
+#set(LWS_WITH_SHARED ON CACHE BOOL "Build shared library" FORCE)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/libwebsockets)
+#add_compile_options(-Wno-sign-conversion)
+#set_target_properties(websockets websockets_shared PROPERTIES
+#        COMPILE_FLAGS "-Wno-error -Wno-sign-conversion -Wno-sign-compare -Wno-shorten-64-to-32"
+#)
+## WebRTC
+#find_library(WEBRTC_LIB libwebrtc.a PATHS ${WEBRTC_OUT_DIR}/obj)
+#if(NOT WEBRTC_LIB)
+#    message(FATAL_ERROR "Cannot find libwebrtc.a at ${WEBRTC_OUT_DIR}/obj")
+#endif()
+#
+## Compile definitions
+#add_compile_options(
+#        -DWEBRTC_POSIX=1
+#        -DWEBRTC_LINUX=1
+#        -fno-rtti
+#        -g -O0
+#        -fpermissive
+#)
+#
+#add_executable(${PROJECT_NAME} app.cpp audio_source.cpp signaling_client.cpp video_track_source.cpp peer_connection.cpp)
+#
+#target_include_directories(${PROJECT_NAME} PRIVATE
+#        ${WEBRTC_DIR}
+#        ${WEBRTC_DIR}/third_party/abseil-cpp/
+#        ${nlohmann_json_INCLUDE_BUILD_DIR}
+#        ${CMAKE_SOURCE_DIR}/libwebsockets/include
+#        ${CMAKE_SOURCE_DIR}/signaling_client.hpp
+#        ${CMAKE_SOURCE_DIR}/audio_source.hpp
+#        ${CMAKE_SOURCE_DIR}/video_track_source.hpp
+#        ${CMAKE_SOURCE_DIR}/peer_connection.hpp
+#        ${CMAKE_SOURCE_DIR}/audio_capture_module.hpp
+#        ${CMAKE_SOURCE_DIR}/webrtc_includes.h
+#)
+#
+#target_link_libraries(${PROJECT_NAME} PUBLIC
+#        ${WEBRTC_LIB}
+#        websockets
+#        websockets_shared
+#)
+
+cmake_minimum_required(VERSION 3.16)
 project(webrtc-speakers CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_COMPILER /usr/bin/clang)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
 
-# Явное указание пути к OpenSSL
-set(OPENSSL_ROOT_DIR /usr/local/ssl)
-set(OPENSSL_INCLUDE_DIR /usr/local/ssl/include)
-set(OPENSSL_LIBRARIES /usr/local/ssl/lib)
-find_package(OpenSSL REQUIRED)
+find_package(X11 REQUIRED)
+find_package(libwebsockets REQUIRED)
 
-set(WEBRTC_OUT_DIR "${CMAKE_SOURCE_DIR}/webrtc/src/out/Default")
-set(WEBRTC_DIR "${CMAKE_SOURCE_DIR}/webrtc/src")
-set(JSON_DIR "${CMAKE_SOURCE_DIR}/nlohmann_json")
+add_subdirectory(${CMAKE_SOURCE_DIR}/nlohmann_json)
 
-add_subdirectory(${JSON_DIR})
-
-add_compile_options(
-        -DWEBRTC_POSIX=1
-        -DWEBRTC_LINUX=1
-        -fpermissive
-)
-
-# Libwebsockets configuration
-# Disable BoringSSL and use OpenSSL instead, as BoringSSL is not configured
-set(LWS_WITH_BORINGSSL OFF CACHE BOOL "Disable BoringSSL, use OpenSSL" FORCE)
-set(LWS_WITH_SSL ON CACHE BOOL "Enable SSL support" FORCE)
 set(LWS_WITH_SHARED ON CACHE BOOL "Build shared library" FORCE)
-# Disable Werror for shorten-64-to-32 to avoid treating this warning as an error
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=shorten-64-to-32" CACHE STRING "C compiler flags" FORCE)
+set(OPENSSL_INCLUDE_DIRS "/usr/include/openssl")
+set(OPENSSL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libcrypto.so:/usr/lib/x86_64-linux-gnu/libssl.so")
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/libwebsockets)
+set(WEBRTC_DIR "${CMAKE_SOURCE_DIR}/webrtc-native-build/dist/Release/webrtc-native-build-7204.e4445e.163/")
 
-# WebRTC
-find_library(WEBRTC_LIB libwebrtc.a PATHS ${WEBRTC_OUT_DIR}/obj)
+find_library(WEBRTC_LIB libwebrtc.a PATHS ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/out/Linux-x64/obj)
 if(NOT WEBRTC_LIB)
-    message(FATAL_ERROR "Cannot find libwebrtc.a at ${WEBRTC_OUT_DIR}/obj")
-endif()
+    message(FATAL_ERROR "Not found WebRTC Libraries!")
+endif ()
 
-# Compile definitions
 add_compile_options(
         -DWEBRTC_POSIX=1
-        -DWEBRTC_LINUX=1
-        -fno-rtti
-        -g -O0
-        -fpermissive
 )
 
-add_executable(${PROJECT_NAME} app.cpp signaling_client.cpp peer_connection.cpp audio_source.cpp video_track_source.cpp)
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-        ${WEBRTC_DIR}
-        ${WEBRTC_DIR}/third_party/abseil-cpp/
-        ${nlohmann_json_INCLUDE_BUILD_DIR}
-        ${CMAKE_SOURCE_DIR}/libwebsockets/include
-        ${CMAKE_SOURCE_DIR}/signaling_client.hpp
-        ${CMAKE_SOURCE_DIR}/audio_source.hpp
-        ${CMAKE_SOURCE_DIR}/video_track_source.hpp
-        ${CMAKE_SOURCE_DIR}/peer_connection.hpp
-        ${CMAKE_SOURCE_DIR}/audio_capture_module.hpp
-        ${CMAKE_SOURCE_DIR}/webrtc_includes.h
+add_executable(${PROJECT_NAME}
+        app.cpp
+        peer_connection.cpp
+        video_track_source.cpp
+        audio_source.cpp
+        signaling_client.cpp
+        conductor.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        ${X11_LIBRARIES}
         ${WEBRTC_LIB}
         websockets_shared
-        OpenSSL::SSL
-        OpenSSL::Crypto
+        nlohmann_json
+)
+
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
+        ${CMAKE_SOURCE_DIR}/nlohmann_json/include
+        ${CMAKE_SOURCE_DIR}/libwebsockets/include
+        ${X11_INCLUDE_DIR}
+        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src
+        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/abseil-cpp
 )

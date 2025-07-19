@@ -38,7 +38,7 @@ void AudioSource::RemoveSink(webrtc::AudioTrackSinkInterface *audio_track_sink_i
     AudioSourceInterface::RemoveSink(audio_track_sink_interface);
 }
 
-const webrtc::AudioOptions AudioSource::options() const {
+const cricket::AudioOptions AudioSource::options() const {
     return AudioSourceInterface::options();
 }
 

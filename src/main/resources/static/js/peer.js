@@ -6,7 +6,7 @@ const remoteVideo = document.querySelector("#remoteVideo");
 let localStream;
 let peerConnection;
 
-const signaling = new SignalingChannel("wss://192.168.0.21:8444/signaling");
+const signaling = new SignalingChannel("wss://192.168.0.45:8444/signaling");
 
 signaling.onmessage = event => {
     if(!localStream){

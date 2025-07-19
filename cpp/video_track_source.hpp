@@ -10,10 +10,10 @@
 
 class VideoTrackSource: public webrtc::VideoTrackSourceInterface {
 public:
-    void AddOrUpdateSink(webrtc::VideoSinkInterface<webrtc::VideoFrame> *sink,
-        const webrtc::VideoSinkWants &wants) override;
+    void AddOrUpdateSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *sink,
+        const rtc::VideoSinkWants &wants) override;
 
-    void RemoveSink(webrtc::VideoSinkInterface<webrtc::VideoFrame> *sink) override;
+    void RemoveSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *sink) override;
 
     void RequestRefreshFrame() override;
 
@@ -35,9 +35,9 @@ public:
 
     void GenerateKeyFrame() override;
 
-    void AddEncodedSink(webrtc::VideoSinkInterface<webrtc::RecordableEncodedFrame> *sink) override;
+    void AddEncodedSink(rtc::VideoSinkInterface<webrtc::RecordableEncodedFrame> *sink) override;
 
-    void RemoveEncodedSink(webrtc::VideoSinkInterface<webrtc::RecordableEncodedFrame> *sink) override;
+    void RemoveEncodedSink(rtc::VideoSinkInterface<webrtc::RecordableEncodedFrame> *sink) override;
 
     void ProcessConstraints(const webrtc::VideoTrackSourceConstraints &) override;
 
