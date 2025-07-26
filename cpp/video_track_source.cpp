@@ -4,11 +4,23 @@
 
 #include "video_track_source.hpp"
 
+void VideoTrackSource::sendFrame(const webrtc::VideoFrame& frame)
+{
+    if (!this->sink_)
+    {
+        return;
+    }
+
+    this->sink_->OnFrame(frame);
+}
+
 void VideoTrackSource::AddOrUpdateSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *sink,
-    const rtc::VideoSinkWants &wants) {
+                                       const rtc::VideoSinkWants &wants) {
+    this->sink_ = sink;
 }
 
 void VideoTrackSource::RemoveSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *sink) {
+    this->sink_ = nullptr;
 }
 
 void VideoTrackSource::RequestRefreshFrame() {
@@ -26,18 +38,23 @@ webrtc::MediaSourceInterface::SourceState VideoTrackSource::state() const {
 }
 
 bool VideoTrackSource::remote() const {
+    return false;
 }
 
 bool VideoTrackSource::is_screencast() const {
+    return false;
 }
 
 std::optional<bool> VideoTrackSource::needs_denoising() const {
+    return std::nullopt;
 }
 
 bool VideoTrackSource::GetStats(Stats *stats) {
+    return false;
 }
 
 bool VideoTrackSource::SupportsEncodedOutput() const {
+    return false;
 }
 
 void VideoTrackSource::GenerateKeyFrame() {

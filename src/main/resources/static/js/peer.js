@@ -5,6 +5,9 @@ const remoteVideo = document.querySelector("#remoteVideo");
 
 let localStream;
 let peerConnection;
+let audioContext;
+let localAudioSource;
+let remoteAudioSource;
 
 const signaling = new SignalingChannel("wss://192.168.0.45:8444/signaling");
 
@@ -35,6 +38,7 @@ async function createPeerConnection(){
     console.log("Create peer connection!");
 
     peerConnection = new RTCPeerConnection();
+
     peerConnection.onicecandidate = (event) => {
         const message = {
             "type": "candidate",
@@ -50,7 +54,45 @@ async function createPeerConnection(){
         signaling.send(message);
     }
 
-    peerConnection.ontrack = event => remoteVideo.srcObject = event.streams[0];
+    peerConnection.ontrack = event => {
+        console.log("Received remote track:", event.track.kind);
+
+        // Set remote video stream
+        remoteVideo.srcObject = event.streams[0];
+
+        // Handle audio tracks specifically
+        if (event.track.kind === 'audio') {
+            // Create a MediaStreamAudioSourceNode from the remote stream
+            const remoteStream = event.streams[0];
+            remoteAudioSource = audioContext.createMediaStreamSource(remoteStream);
+
+            // Create an AnalyserNode to process remote audio data
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+
+            // Connect the audio source to the analyser
+            remoteAudioSource.connect(analyser);
+            // Connect to the audio context destination to hear the audio
+            analyser.connect(audioContext.destination);
+
+            // Process remote audio data
+            const processRemoteAudio = () => {
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Float32Array(bufferLength);
+                analyser.getFloatFrequencyData(dataArray);
+
+                // Example: Log remote audio levels (modify as needed)
+                const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+                console.log("Remote audio level:", average);
+
+                // Continue processing audio in a loop
+                requestAnimationFrame(processRemoteAudio);
+            };
+
+            // Start processing remote audio
+            processRemoteAudio();
+        }
+    }
 
     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 }
@@ -119,9 +161,39 @@ async function start(){
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
     localVideo.srcObject = localStream;
 
+    // Initialize Web Audio API context
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Create a MediaStreamAudioSourceNode for local stream
+    localAudioSource = audioContext.createMediaStreamSource(localStream);
+
+    // Create an AnalyserNode to process local audio data
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048;
+
+    // Connect the local audio source to the analyser
+    localAudioSource.connect(analyser);
+    // Connect to the audio context destination to hear the audio locally
+    analyser.connect(audioContext.destination);
+
+    // Process local audio data
+    const processLocalAudio = () => {
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Float32Array(bufferLength);
+        analyser.getFloatFrequencyData(dataArray);
+
+        // Example: Log local audio levels (modify as needed)
+        const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+
+        // Continue processing audio in a loop
+        requestAnimationFrame(processLocalAudio);
+    };
+
+    // Start processing local audio
+    processLocalAudio();
+
     call();
 }
-
 
 const constraints = window.constraints = {
     audio: true,
@@ -130,4 +202,4 @@ const constraints = window.constraints = {
 
 document.addEventListener("DOMContentLoaded", () => {
     start();
-})
+});

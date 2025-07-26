@@ -85,6 +85,7 @@ void Messages::send_(const std::string& message) const
 }
 
 
+
 SignalingClient::SignalingClient(Conductor *conductor):
 ctx_(nullptr, [](struct lws_context *ctx){if (ctx != nullptr) lws_context_destroy(ctx);}),
 messages_(std::make_unique<Messages>()),

@@ -13,15 +13,38 @@
 
 class Conductor;
 
+class AudioReceiver: public webrtc::AudioTrackSinkInterface
+{
+public:
+    AudioSource *sink_;
+
+    AudioReceiver(AudioSource *sink);
+
+    void OnData(const void *audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels, size_t number_of_frames) override;
+};
+
+class VideoReceiver: public rtc::VideoSinkInterface<webrtc::VideoFrame>
+{
+public:
+    VideoTrackSource *sink_;
+
+    VideoReceiver(VideoTrackSource *sink);
+
+    void OnFrame(const webrtc::VideoFrame &frame) override;
+};
 
 class PeerConnection: public webrtc::PeerConnectionObserver, public webrtc::CreateSessionDescriptionObserver{
 
 public:
+    rtc::scoped_refptr<AudioSource> audio_track_source_;
+    rtc::scoped_refptr<VideoTrackSource> video_track_source_;
+
     ~PeerConnection();
     PeerConnection(Conductor *conductor = nullptr);
 
     void call();
     void handle_offer(const std::string &sdp);
+    void handle_candidate(const nlohmann::json &data);
 
     void OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state) override;
     void OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface>) override;
@@ -48,6 +71,8 @@ public:
 
 private:
     std::unique_ptr<rtc::Thread> signaling_thread_;
+    std::unique_ptr<AudioReceiver> audio_receiver_;
+    std::unique_ptr<VideoReceiver> video_receiver_;
     webrtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_;
     Conductor* conductor_;
 };

@@ -48,7 +48,13 @@ private:
 
 class SignalingClient: public SignalingClientInterface{
 public:
-    SignalingClient(Conductor *conductor);
+    SignalingClient():
+        ctx_(nullptr, [](struct lws_context* ctx) { if (ctx != nullptr) lws_context_destroy(ctx); }),
+        messages_(std::make_unique<Messages>()), conductor_(nullptr)
+    {
+    }
+    ;
+    SignalingClient(Conductor *conductor = nullptr);
     ~SignalingClient() override;
 
     void connect(const std::string &address, const std::string &path, int port) override;

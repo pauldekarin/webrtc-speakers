@@ -6,10 +6,15 @@
 #define AUDIO_SOURCE_H
 
 
+#include <api/call/audio_sink.h>
+
 #include "webrtc_includes.h"
 
 class AudioSource: public webrtc::AudioSourceInterface {
 public:
+    void send(const void *audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels, size_t number_of_frames);
+
+    void silence();
 
     void RegisterObserver(webrtc::ObserverInterface *observer) override;
 
@@ -32,6 +37,9 @@ public:
     const cricket::AudioOptions options() const override;
 
     ~AudioSource() override;
+
+private:
+    webrtc::AudioTrackSinkInterface *sink_ = nullptr;
 };
 
 

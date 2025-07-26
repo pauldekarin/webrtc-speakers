@@ -10,6 +10,8 @@
 
 class VideoTrackSource: public webrtc::VideoTrackSourceInterface {
 public:
+    void sendFrame(const webrtc::VideoFrame& frame) ;
+
     void AddOrUpdateSink(rtc::VideoSinkInterface<webrtc::VideoFrame> *sink,
         const rtc::VideoSinkWants &wants) override;
 
@@ -43,6 +45,9 @@ public:
 
 protected:
     ~VideoTrackSource() override;
+
+    private:
+    rtc::VideoSinkInterface<webrtc::VideoFrame> *sink_ = nullptr;
 };
 
 

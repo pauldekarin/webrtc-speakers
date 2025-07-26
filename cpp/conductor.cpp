@@ -23,10 +23,21 @@ void Conductor::set_signaling_client(SignalingClientInterface* signaling_client)
 
 void Conductor::send_message(const std::string& message)
 {
-    this->signaling_client_->send(message);
+    if (this->signaling_client_)
+    {
+        this->signaling_client_->send(message);
+    }else
+    {
+        std::cerr << "Failed to send message. Signaling client is not set!" << std::endl;
+    }
 }
 
 void Conductor::handle_message(const std::string& message) {
+    if (!this->peer_connection_)
+    {
+        return;
+    }
+
     try {
         nlohmann::json json = nlohmann::json::parse(message);
         if (!json.contains("type")) {
@@ -36,10 +47,6 @@ void Conductor::handle_message(const std::string& message) {
         std::string type = json.at("type").get<std::string>();
         if (type == "offer") {
             if (!json.contains("sdp")) {
-                return;
-            }
-
-            if (!peer_connection_) {
                 return;
             }
 
@@ -58,6 +65,7 @@ void Conductor::handle_message(const std::string& message) {
             //
             // this->peer_connection_->get_pc()->SetRemoteDescription(this, remote_sdp.release());
         } else if (type == "candidate") {
+            this->peer_connection_->handle_candidate(json);
         } else {
         }
     } catch (const std::exception& e) {

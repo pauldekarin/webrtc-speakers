@@ -170,67 +170,6 @@
 #        websockets_shared
 #)
 #
-#cmake_minimum_required(VERSION 3.16)
-#project(webrtc-speakers CXX)
-#
-#set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_C_COMPILER /usr/bin/clang)
-#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
-#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-#
-#find_package(X11 REQUIRED)
-#find_package(libwebsockets REQUIRED)
-#
-#add_subdirectory(${CMAKE_SOURCE_DIR}/nlohmann_json)
-#
-#set(LWS_WITH_SHARED ON CACHE BOOL "Build shared library" FORCE)
-#set(OPENSSL_INCLUDE_DIRS "/usr/include/openssl")
-#set(OPENSSL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libcrypto.so:/usr/lib/x86_64-linux-gnu/libssl.so")
-#
-#set(WEBRTC_DIR "${CMAKE_SOURCE_DIR}/webrtc-native-build/dist/Release/webrtc-native-build-7204.e4445e.163/")
-#
-#find_library(WEBRTC_LIB libwebrtc.a PATHS ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/out/Linux-x64/obj)
-#if(NOT WEBRTC_LIB)
-#    message(FATAL_ERROR "Not found WebRTC Libraries!")
-#endif ()
-#
-#add_compile_options(
-#        -DWEBRTC_POSIX=1
-#)
-#
-#add_executable(${PROJECT_NAME}
-#        app.cpp
-#        peer_connection.cpp
-#        video_track_source.cpp
-#        audio_source.cpp
-#        signaling_client.cpp
-#        conductor.cpp
-#        rtcp.cpp
-#)
-#
-#target_link_libraries(${PROJECT_NAME} PRIVATE
-#        ${X11_LIBRARIES}
-#        ${WEBRTC_LIB}
-#        websockets_shared
-#        nlohmann_json
-#)
-#
-#target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
-#        ${CMAKE_SOURCE_DIR}/nlohmann_json/include
-#        ${CMAKE_SOURCE_DIR}/libwebsockets/include
-#        ${X11_INCLUDE_DIR}
-#        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src
-#        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/abseil-cpp
-#)
-
-
-
-
-
-
-
-
 
 
 
@@ -244,9 +183,16 @@ set(CMAKE_C_COMPILER /usr/bin/clang)
 set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/nlohmann_json)
 find_package(X11 REQUIRED)
+find_package(libwebsockets REQUIRED)
 
+add_subdirectory(${CMAKE_SOURCE_DIR}/nlohmann_json)
+
+set(LWS_WITH_SHARED ON CACHE BOOL "Build shared library" FORCE)
+set(OPENSSL_INCLUDE_DIRS "/usr/include/openssl")
+set(OPENSSL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libcrypto.so:/usr/lib/x86_64-linux-gnu/libssl.so")
+
+set(WEBRTC_DIR "${CMAKE_SOURCE_DIR}/webrtc-native-build/dist/Release/webrtc-native-build-7204.e4445e.163/")
 
 find_library(WEBRTC_LIB libwebrtc.a PATHS ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/out/Linux-x64/obj)
 if(NOT WEBRTC_LIB)
@@ -258,22 +204,81 @@ add_compile_options(
 )
 
 add_executable(${PROJECT_NAME}
+        app.cpp
         peer_connection.cpp
         video_track_source.cpp
         audio_source.cpp
+        signaling_client.cpp
         conductor.cpp
-        rtcp.cpp
+        audio_capture_module.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${WEBRTC_LIB}
         ${X11_LIBRARIES}
+        ${WEBRTC_LIB}
+        websockets_shared
         nlohmann_json
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
+        ${CMAKE_SOURCE_DIR}/
         ${CMAKE_SOURCE_DIR}/nlohmann_json/include
+        ${CMAKE_SOURCE_DIR}/libwebsockets/include
         ${X11_INCLUDE_DIR}
         ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src
         ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/abseil-cpp
 )
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+#cmake_minimum_required(VERSION 3.16)
+#project(webrtc-speakers CXX)
+#
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_C_COMPILER /usr/bin/clang)
+#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+#
+#add_subdirectory(${CMAKE_SOURCE_DIR}/nlohmann_json)
+#find_package(X11 REQUIRED)
+#
+#
+#find_library(WEBRTC_LIB libwebrtc.a PATHS ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/out/Linux-x64/obj)
+#if(NOT WEBRTC_LIB)
+#    message(FATAL_ERROR "Not found WebRTC Libraries!")
+#endif ()
+#
+#add_compile_options(
+#        -DWEBRTC_POSIX=1
+#)
+#
+#add_executable(${PROJECT_NAME}
+#        peer_connection.cpp
+#        video_track_source.cpp
+#        audio_source.cpp
+#        conductor.cpp
+#        rtcp.cpp
+#)
+#
+#target_link_libraries(${PROJECT_NAME} PRIVATE
+#        ${WEBRTC_LIB}
+#        ${X11_LIBRARIES}
+#        nlohmann_json
+#)
+#
+#target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
+#        ${CMAKE_SOURCE_DIR}/nlohmann_json/include
+#        ${X11_INCLUDE_DIR}
+#        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src
+#        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/abseil-cpp
+#)
