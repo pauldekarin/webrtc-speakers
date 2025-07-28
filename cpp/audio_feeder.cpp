@@ -25,67 +25,126 @@ AudioFeeder::AudioFeeder(AudioConfig config, AudioHandlerInterface* sink):
 
 void AudioFeeder::start(AudioDeviceInfo info)
 {
-    if (!this->is_available())
-    {
-        throw std::runtime_error("AudioFeeder::start: Device is not available");
+
+    PaStreamParameters  inputParameters,
+                        outputParameters;
+    PaStream*           stream;
+    PaError             err = paNoError;
+    int                 i;
+    int                 totalFrames;
+    int                 numSamples;
+    int                 numBytes;
+    SAMPLE              max, val;
+    double              average;
+    this->data_->data = new std::vector<Sample>();
+
+    printf("patest_record.c\n"); fflush(stdout);
+
+    inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+    if (inputParameters.device == paNoDevice) {
+        fprintf(stderr,"Error: No default input device.\n");
     }
 
-    std::cout << __func__ << std::endl;
-
-    const PaDeviceInfo *p_info = AudioFeeder::map_info_(info);
-
-    if (!p_info)
-    {
-        std::cerr << "AudioFeeder::start: Failed to map device info" << std::endl;
-        return;
-    }
-
-    PaError err;
-    PaStream *stream;
-    PaStreamParameters parameters;
-
-    unsigned long sampleFormat;
+    PaSampleFormat format = paInt16;
 
     if (this->config_.getFormat() == 32)
     {
-        sampleFormat = paFloat32;
+        format = paFloat32;
     }else if (this->config_.getFormat() == 24)
     {
-        sampleFormat = paInt24;
-    }else
-    {
-        sampleFormat = paInt16;
+        format = paInt24;
     }
 
-    parameters.channelCount = this->config_.getChannels();
-    parameters.sampleFormat = sampleFormat;
-    parameters.device = info.getIndex();
-    parameters.suggestedLatency = p_info->defaultLowInputLatency;
-    parameters.hostApiSpecificStreamInfo = nullptr;
-    this->data_->data  = new std::vector<Sample>();
+    inputParameters.channelCount = this->config_.getChannels();
+    inputParameters.sampleFormat = format;
+    inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
+    inputParameters.hostApiSpecificStreamInfo = nullptr;
 
-    std::cout << "Pa_OpenStream() " << p_info->name << std::endl;
-    err = Pa_OpenStream(&stream, &parameters,nullptr, this->config_.getSampleRate(), this->config_.getFramesPerBuffer(), paClipOff, AudioFeeder::callback_, this->data_);
+    /* Record some audio. -------------------------------------------- */
+    err = Pa_OpenStream(
+              &stream,
+              &inputParameters,
+              NULL,                  /* &outputParameters, */
+              this->config_.getSampleRate(),
+              this->config_.getFramesPerBuffer(),
+              paClipOff,      /* we won't output out of range samples so don't bother clipping them */
+              AudioFeeder::callback_,
+              this->data_ );
+    if( err != paNoError ) return;;
 
-    if (err != paNoError)
+    err = Pa_StartStream( stream );
+    if( err != paNoError ) return;;
+    printf("\n=== Now recording!! Please speak into the microphone. ===\n"); fflush(stdout);
+
+    while( ( err = Pa_IsStreamActive( stream ) ) == 1 )
     {
-        std::cerr << "Pa_OpenStream failed " << std::endl;
-        return;
+        Pa_Sleep(1000);
+        printf("index \n" ); fflush(stdout);
     }
 
-    std::cout << "Pa_StartStream()..." << std::endl;
-    err = Pa_StartStream(stream);
-
-    if (err != paNoError)
-    {
-        std::cerr << "Pa_StartStream failed " << std::endl;
-        return;
-    }
-
-    this->stream_ = stream;
-
-    std::cout << "Started name: " << p_info->name << " index: " << info.getIndex() << std::endl;
+    Pa_CloseStream( stream );
 }
+//     if (!this->is_available())
+//     {
+//         throw std::runtime_error("AudioFeeder::start: Device is not available");
+//     }
+//
+//     std::cout << __func__ << std::endl;
+//
+//     const PaDeviceInfo *p_info = AudioFeeder::map_info_(info);
+//
+//     if (!p_info)
+//     {
+//         std::cerr << "AudioFeeder::start: Failed to map device info" << std::endl;
+//         return;
+//     }
+//
+//     PaError err;
+//     PaStream *stream;
+//     PaStreamParameters parameters;
+//
+//     unsigned long sampleFormat;
+//
+//     if (this->config_.getFormat() == 32)
+//     {
+//         sampleFormat = paFloat32;
+//     }else if (this->config_.getFormat() == 24)
+//     {
+//         sampleFormat = paInt24;
+//     }else
+//     {
+//         sampleFormat = paInt16;
+//     }
+//
+//     parameters.channelCount = this->config_.getChannels();
+//     parameters.sampleFormat = sampleFormat;
+//     parameters.device = info.getIndex();
+//     parameters.suggestedLatency = p_info->defaultLowInputLatency;
+//     parameters.hostApiSpecificStreamInfo = nullptr;
+//     this->data_->data  = new std::vector<Sample>();
+//
+//     std::cout << "Pa_OpenStream() " << p_info->name << std::endl;
+//     err = Pa_OpenStream(&stream, &parameters,nullptr, this->config_.getSampleRate(), this->config_.getFramesPerBuffer(), paClipOff, AudioFeeder::callback_, this->data_);
+//
+//     if (err != paNoError)
+//     {
+//         std::cerr << "Pa_OpenStream failed " << std::endl;
+//         return;
+//     }
+//
+//     std::cout << "Pa_StartStream()..." << std::endl;
+//     err = Pa_StartStream(stream);
+//
+//     if (err != paNoError)
+//     {
+//         std::cerr << "Pa_StartStream failed " << std::endl;
+//         return;
+//     }
+//
+//     this->stream_ = stream;
+//
+//     std::cout << "Started name: " << p_info->name << " index: " << info.getIndex() << std::endl;
+// }
 
 void AudioFeeder::stop()
 {
@@ -167,6 +226,11 @@ AudioDeviceInfo AudioFeeder::get_default_output_device()
     return map_info_(Pa_GetDeviceInfo(Pa_GetDefaultOutputDevice()));
 }
 
+AudioDeviceInfo AudioFeeder::get_default_input_device()
+{
+    return map_info_(Pa_GetDeviceInfo(Pa_GetDefaultInputDevice()));
+}
+
 int AudioFeeder::callback_(const void* input_buffer, void* output_buffer, unsigned long frames_per_buffer,
                            const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* user_data) {
     if (!user_data) {
@@ -174,11 +238,22 @@ int AudioFeeder::callback_(const void* input_buffer, void* output_buffer, unsign
         return paComplete;
     }
 
+
     AudioFeeder *feeder = static_cast<paData*>(user_data)->feeder;
     if (!feeder) {
         std::cerr << "user_data does not contain feeder" << std::endl;
         return paComplete;
     }
+
+    static int i = 0;
+
+    i += frames_per_buffer;
+
+    if (i > feeder->config_.getSampleRate() * 5)
+    {
+        return paComplete;
+    }
+
 
     std::vector<Sample>* recordedSamples = static_cast<std::vector<Sample>*>(static_cast<paData*>(user_data)->data);
     const Sample *input = static_cast<const Sample*>(input_buffer);
@@ -190,17 +265,11 @@ int AudioFeeder::callback_(const void* input_buffer, void* output_buffer, unsign
     }
 
     // Normalize samples to [-1.0, 1.0] if necessary
-    std::vector<Sample> normalizedSamples(frames_per_buffer * feeder->config_.getChannels());
     for (unsigned long i = 0; i < frames_per_buffer * feeder->config_.getChannels(); i++) {
-        Sample sample = input[i];
-        // Ensure sample is in [-1.0, 1.0]
-        if (sample > 1.0f) sample = 1.0f;
-        if (sample < -1.0f) sample = -1.0f;
-        normalizedSamples[i] = sample;
-        recordedSamples->push_back(sample); // Save to WAV
+        recordedSamples->push_back(input[i]);
     }
 
-    feeder->on_data(normalizedSamples.data(), frames_per_buffer);
+    feeder->on_data(input_buffer, frames_per_buffer);
     return paContinue;
 }
 

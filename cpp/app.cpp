@@ -43,6 +43,60 @@ void writeWavFile(const std::vector<Sample>& samples, const std::string& filenam
     std::cout << "Recording saved to " << filename << std::endl;
 }
 
+#define PA_SAMPLE_TYPE  paInt16
+typedef short SAMPLE;
+#define SAMPLE_SILENCE  (0)
+#define PRINTF_S_FORMAT "%d"
+
+static int playCallback(const void* inputBuffer, void* outputBuffer,
+                        unsigned long framesPerBuffer,
+                        const PaStreamCallbackTimeInfo* timeInfo,
+                        PaStreamCallbackFlags statusFlags,
+                        void* userData) {
+
+    AudioFeeder *feeder = static_cast<AudioFeeder*>(static_cast<paData*>(userData)->feeder);
+    std::vector<SAMPLE>* recordedSamples = static_cast<std::vector<SAMPLE>*>(static_cast<paData*>(userData)->data);
+    static size_t frameIndex = 0; // Track current position in the vector
+    SAMPLE* wptr = static_cast<SAMPLE*>(outputBuffer);
+    size_t framesLeft = recordedSamples->size() / feeder->config_.getChannels() - frameIndex;
+    unsigned int i;
+    int finished;
+
+    (void)inputBuffer; // Prevent unused variable warnings
+    (void)timeInfo;
+    (void)statusFlags;
+
+
+    if (framesLeft < framesPerBuffer) {
+        // Final buffer: copy remaining samples and pad with zeros
+        for (i = 0; i < framesLeft; i++) {
+            *wptr++ = (*recordedSamples)[frameIndex * feeder->config_.getChannels() + i];
+            if ( feeder->config_.getChannels() == 2) *wptr++ = (*recordedSamples)[frameIndex *  feeder->config_.getChannels() + i + 1];
+        }
+        for (; i < framesPerBuffer; i++) {
+            *wptr++ = 0; // Left channel
+            if ( feeder->config_.getChannels() == 2) *wptr++ = 0; // Right channel
+        }
+        frameIndex += framesLeft;
+        finished = paComplete;
+    } else {
+        // Copy samples for the current buffer
+        for (i = 0; i < framesPerBuffer; i++) {
+            *wptr++ = (*recordedSamples)[frameIndex *  feeder->config_.getChannels() + i];
+            if ( feeder->config_.getChannels() == 2) *wptr++ = (*recordedSamples)[frameIndex *  feeder->config_.getChannels() + i + 1];
+        }
+        frameIndex += framesPerBuffer;
+        finished = paContinue;
+    }
+
+    // Reset frameIndex when playback is complete
+    if (finished == paComplete) {
+        frameIndex = 0;
+    }
+
+    return finished;
+}
+
 int main(int argc, const char** argv) {
     rtc::InitializeSSL();
 
@@ -68,16 +122,53 @@ int main(int argc, const char** argv) {
     }
 
     feeder.set_sink(peer_connection.get());
+    feeder.start(feeder.get_default_input_device());
 
-    for (AudioDeviceInfo device : feeder.get_audio_devices()) {
-        if (std::string(device.getName()).find("sof-hda-dsp Digital Microphone") != std::string::npos) {
-            feeder.start(device);
-            break;
-        }
-    }
-
-    Pa_Sleep(10000); // Record for 10 seconds
-
+    // for (AudioDeviceInfo device : feeder.get_audio_devices()) {
+    //     if (std::string(device.getName()).find("sof-hda-dsp Digital Microphone") != std::string::npos) {
+    //         feeder.start(device);
+    //         break;
+    //     }
+    // }
+    //
+    // Pa_Sleep(10000); // Record for 10 seconds
+    //
+    // PaStream *stream;
+    // PaError err;
+    // PaStreamParameters outputParameters;
+    // outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
+    // if (outputParameters.device == paNoDevice) {
+    //     fprintf(stderr,"Error: No default output device.\n");
+    // }
+    // outputParameters.channelCount = feeder.config_.getChannels();
+    // outputParameters.sampleFormat =  PA_SAMPLE_TYPE;
+    // outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
+    // outputParameters.hostApiSpecificStreamInfo = NULL;
+    //
+    // printf("\n=== Now playing back. ===\n"); fflush(stdout);
+    // err = Pa_OpenStream(
+    //           &stream,
+    //           NULL, /* no input */
+    //           &outputParameters,
+    //           feeder.config_.getSampleRate(),
+    //           feeder.config_.getFramesPerBuffer(),
+    //           paClipOff,      /* we won't output out of range samples so don't bother clipping them */
+    //           playCallback,
+    //           feeder.data_ );
+    //
+    // if( stream )
+    // {
+    //     err = Pa_StartStream( stream );
+    //
+    //     printf("Waiting for playback to finish.\n"); fflush(stdout);
+    //
+    //     err = Pa_CloseStream( stream );
+    //
+    //     printf("Done.\n"); fflush(stdout);
+    // }
+    //
+    // Pa_Terminate();
+    //
     writeWavFile(*feeder.data_->data, "output.wav", feeder.config_.getSampleRate(), feeder.config_.getChannels(), feeder.config_.getFormat());
 
     rtc::CleanupSSL();

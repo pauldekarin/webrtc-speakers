@@ -17,15 +17,6 @@ typedef short SAMPLE;
 typedef int16_t Sample;
 class AudioFeeder;
 
-
-typedef struct
-{
-    int          frameIndex;  /* Index into sample array. */
-    int          maxFrameIndex;
-    SAMPLE      *recordedSamples;
-}
-paTestData;
-
 typedef struct
 {
     AudioFeeder* feeder;
@@ -50,6 +41,7 @@ public:
 
     std::vector<AudioDeviceInfo> get_audio_devices();
     AudioDeviceInfo get_default_output_device();
+    AudioDeviceInfo get_default_input_device();
 
     AudioHandlerInterface *sink_;
     AudioConfig config_;
