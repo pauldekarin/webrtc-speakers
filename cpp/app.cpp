@@ -114,7 +114,7 @@ int main(int argc, const char** argv) {
     peer_connection->call();
     signaling_client->connect("192.168.0.45", "signaling", 8444);
 
-    AudioConfig config{48000, 1, 480, 16}; // 48 kHz, mono, 480 frames, 16-bit PCM
+    AudioConfig config{48000, 2, 480, 16}; // 48 kHz, mono, 480 frames, 16-bit PCM
     AudioFeeder feeder{config};
 
     for (auto dev : feeder.get_audio_devices()) {

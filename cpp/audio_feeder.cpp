@@ -40,7 +40,21 @@ void AudioFeeder::start(AudioDeviceInfo info)
 
     printf("patest_record.c\n"); fflush(stdout);
 
-    inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+    inputParameters.device = paNoDevice;
+
+    for (int i = 0; i < Pa_GetDeviceCount(); i++)
+    {
+        const PaDeviceInfo *p_info = Pa_GetDeviceInfo(i);
+
+        if (std::string{p_info->name}.find("Monitor of sof-hda-dsp Speaker + Headphones") != std::string::npos)
+        {
+            std::cout << "FOUND!" << std::endl;
+            std::cout << p_info->maxInputChannels << std::endl;
+            inputParameters.device = i;
+            break;
+        }
+    }
+    // inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
     if (inputParameters.device == paNoDevice) {
         fprintf(stderr,"Error: No default input device.\n");
     }
@@ -60,6 +74,7 @@ void AudioFeeder::start(AudioDeviceInfo info)
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
     inputParameters.hostApiSpecificStreamInfo = nullptr;
 
+
     /* Record some audio. -------------------------------------------- */
     err = Pa_OpenStream(
               &stream,
@@ -70,7 +85,11 @@ void AudioFeeder::start(AudioDeviceInfo info)
               paClipOff,      /* we won't output out of range samples so don't bother clipping them */
               AudioFeeder::callback_,
               this->data_ );
-    if( err != paNoError ) return;;
+    if( err != paNoError )
+    {
+        std::cerr << "Failed Pa_OpenStream()\n" << err << std::endl;
+        return;
+    }
 
     err = Pa_StartStream( stream );
     if( err != paNoError ) return;;
@@ -249,7 +268,7 @@ int AudioFeeder::callback_(const void* input_buffer, void* output_buffer, unsign
 
     i += frames_per_buffer;
 
-    if (i > feeder->config_.getSampleRate() * 5)
+    if (i > feeder->config_.getSampleRate() * 20)
     {
         return paComplete;
     }
