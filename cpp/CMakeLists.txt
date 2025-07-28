@@ -186,6 +186,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
 find_package(X11 REQUIRED)
 find_package(libwebsockets REQUIRED)
 
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/portaudio)
+# find_library(PORTAUDIO_LIB NAMES portaudio libportaudio PATHS ${PORTAUDIO_LIB}/lib)
+
 add_subdirectory(${CMAKE_SOURCE_DIR}/nlohmann_json)
 
 set(LWS_WITH_SHARED ON CACHE BOOL "Build shared library" FORCE)
@@ -211,6 +215,13 @@ add_executable(${PROJECT_NAME}
         signaling_client.cpp
         conductor.cpp
         audio_capture_module.cpp
+        audio_feeder.cpp
+        audio_feeder.hpp
+        audio_handler_interface.hpp
+        audio_device_info.cpp
+        audio_device_info.hpp
+        audio_config.cpp
+        audio_config.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -218,6 +229,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         ${WEBRTC_LIB}
         websockets_shared
         nlohmann_json
+        portaudio
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
@@ -227,6 +239,7 @@ target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
         ${X11_INCLUDE_DIR}
         ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src
         ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/abseil-cpp
+        ${CMAKE_SOURCE_DIR}/portaudio/include
 )
 
 

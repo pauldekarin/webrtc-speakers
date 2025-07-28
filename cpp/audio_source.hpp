@@ -38,7 +38,6 @@ public:
 
     ~AudioSource() override;
 
-private:
     webrtc::AudioTrackSinkInterface *sink_ = nullptr;
 };
 

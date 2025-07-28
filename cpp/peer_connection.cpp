@@ -12,7 +12,6 @@ void AudioReceiver::OnData(const void* audio_data, int bits_per_sample, int samp
         return;
     }
 
-
     this->sink_->send(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
 }
 
@@ -78,6 +77,7 @@ void PeerConnection::call(){
     if(factory){
         webrtc::PeerConnectionInterface::RTCConfiguration configuration;
         webrtc::PeerConnectionDependencies dependencies(this);
+        configuration.audio_jitter_buffer_max_packets = 0;
 
         auto result = factory->CreatePeerConnectionOrError(configuration, std::move(dependencies));
 
@@ -105,9 +105,7 @@ void PeerConnection::call(){
             return;
         }
         this->video_receiver_ = std::make_unique<VideoReceiver>(this->video_track_source_.get());
-
-
-        this->audio_receiver_ = std::make_unique<AudioReceiver>(this->audio_track_source_.get());
+        // this->audio_receiver_ = std::make_unique<AudioReceiver>(this->audio_track_source_.get());
     }else {
           std::cerr << "Failed to create PeerConnectionFactory" << std::endl;
       }
@@ -338,6 +336,17 @@ void PeerConnection::OnSuccess(webrtc::SessionDescriptionInterface* desc)
 
 void PeerConnection::OnFailure(webrtc::RTCError error)
 {
+}
+
+void PeerConnection::handle(const void* audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels,
+    size_t number_of_frames)
+{
+    if (!this->audio_track_source_)
+    {
+        return;
+    }
+
+    this->audio_track_source_->send(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
 }
 
 webrtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> createFactory(){

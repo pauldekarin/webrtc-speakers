@@ -8,6 +8,7 @@
 #include "nlohmann/json.hpp"
 #include "webrtc_includes.h"
 #include "audio_capture_module.hpp"
+#include "audio_handler_interface.hpp"
 #include "audio_source.hpp"
 #include "video_track_source.hpp"
 
@@ -33,7 +34,7 @@ public:
     void OnFrame(const webrtc::VideoFrame &frame) override;
 };
 
-class PeerConnection: public webrtc::PeerConnectionObserver, public webrtc::CreateSessionDescriptionObserver{
+class PeerConnection: public webrtc::PeerConnectionObserver, public webrtc::CreateSessionDescriptionObserver, public AudioHandlerInterface{
 
 public:
     rtc::scoped_refptr<AudioSource> audio_track_source_;
@@ -68,6 +69,8 @@ public:
     void OnInterestingUsage(int) override;
     void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;
     void OnFailure(webrtc::RTCError error) override;
+    void handle(const void* audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels,
+        size_t number_of_frames) override;
 
 private:
     std::unique_ptr<rtc::Thread> signaling_thread_;

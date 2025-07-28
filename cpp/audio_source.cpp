@@ -13,6 +13,7 @@ void AudioSource::send(const void* audio_data, int bits_per_sample, int sample_r
         return;
     }
 
+    std::cout << "bits per sample: " << bits_per_sample <<  " sample_rate " << sample_rate << " channels " << number_of_channels << " frames " << number_of_frames <<std::endl;
     this->sink_->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
 }
 

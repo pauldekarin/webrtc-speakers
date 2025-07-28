@@ -5,6 +5,7 @@
     <mapping directory="$PROJECT_DIR$/boringssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/nlohmann_json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/portaudio" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native-build" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/depot_toolsiz7ex27f/depot_tools" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/flatbuffers/src0t3kt2s8/src" vcs="Git" />

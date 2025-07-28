@@ -61,7 +61,7 @@ static int record_callback(const void *input_buffer, void *output_buffer,
     return finished;
 }
 
-static int play_callback(const void *input_buffer, void *output_buffer, 
+static int play_callback(const void *input_buffer, void *output_buffer,
     unsigned long frames_per_buffer, const PaStreamCallbackTimeInfo *time_info,
     PaStreamCallbackFlags status_flags, void *user_data
 ){
@@ -143,18 +143,18 @@ int main(int argc, char **argv){
     //     std::cerr << "pa_simple_new occured some errors!\n";
     //     std::exit(-1);
     // }
-    
+
     // pa_usec_t latency;
-    
-    
+
+
     // if((latency = pa_simple_get_latency(stream, &error)) == (pa_usec_t) - 1){
     //     std::cerr << "pa_simple_get_latency occurred some errors!\n";
     //     std::exit(-1);
     // }
-    
+
     // for(int i = 0; SAMPLE_RATE * 10 / FRAMES_PER_BUFFER; i++){
     //     std::uint8_t buffer[FRAMES_PER_BUFFER];
-        
+
     //     for(int j = 0; j < FRAMES_PER_BUFFER; j++){
     //         buffer[j] = 255;
     //     }
@@ -177,25 +177,25 @@ int main(int argc, char **argv){
     PaStreamParameters input_params;
     PaStream *stream;
     paTestData data;
-    
+
     int total_frames;
     int num_samples;
     int num_bytes;
-    
+
     data.max_frame_index = total_frames = NUM_SECONDS * SAMPLE_RATE;
     data.frame_index = 0;
     num_samples = total_frames * NUM_CHANNELS;
     num_bytes = sizeof(SAMPLE) * num_samples;
     std::cout << "Bytes: " << num_bytes << std::endl;
     data.recorded_samples = new SAMPLE[num_bytes];
-    
+
     if(data.recorded_samples == nullptr){
         std::cerr << "Cannot allocate" << std::endl;
         return 0;
     }
-    
+
     handle_error(Pa_Initialize());
-    
+
     get_audio_devices();
     input_params.device = Pa_GetDefaultInputDevice();
     if(input_params.device == paNoDevice){
@@ -254,7 +254,7 @@ int main(int argc, char **argv){
         std::cout << "AA" << std::endl;
         Pa_Sleep(1000);
     }
-    
+
     if(data.recorded_samples != nullptr){
         delete[] data.recorded_samples;
     }
