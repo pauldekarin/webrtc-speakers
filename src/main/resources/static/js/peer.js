@@ -159,6 +159,7 @@ async function start(){
     console.log("Start");
 
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    localStream.getAudioTracks()[0].enabled = false;
     localVideo.srcObject = localStream;
 
     // Initialize Web Audio API context

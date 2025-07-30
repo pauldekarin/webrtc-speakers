@@ -268,7 +268,7 @@ int AudioFeeder::callback_(const void* input_buffer, void* output_buffer, unsign
 
     i += frames_per_buffer;
 
-    if (i > feeder->config_.getSampleRate() * 20)
+    if (i > feeder->config_.getSampleRate() * 2000)
     {
         return paComplete;
     }

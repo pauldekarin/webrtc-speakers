@@ -17,6 +17,7 @@
     <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/pico/pico-sspc-binance/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/rt595/hello_world/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/nlohmann_json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/portaudio" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/base" vcs="Git" />
