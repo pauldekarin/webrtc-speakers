@@ -172,8 +172,6 @@
 #
 
 
-
-
 cmake_minimum_required(VERSION 3.16)
 project(webrtc-speakers CXX)
 
@@ -183,10 +181,10 @@ set(CMAKE_C_COMPILER /usr/bin/clang)
 set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
 
-find_package(X11 REQUIRED)
 find_package(libwebsockets REQUIRED)
 
 
+add_subdirectory(${CMAKE_SOURCE_DIR}/spdlog)
 add_subdirectory(${CMAKE_SOURCE_DIR}/portaudio)
 # find_library(PORTAUDIO_LIB NAMES portaudio libportaudio PATHS ${PORTAUDIO_LIB}/lib)
 
@@ -198,8 +196,8 @@ set(OPENSSL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libcrypto.so:/usr/lib/x86_64-li
 
 set(WEBRTC_DIR "${CMAKE_SOURCE_DIR}/webrtc-native-build/dist/Release/webrtc-native-build-7204.e4445e.163/")
 
-find_library(WEBRTC_LIB libwebrtc.a PATHS ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/out/Linux-x64/obj)
-if(NOT WEBRTC_LIB)
+find_library(WEBRTC_LIB libwebrtc.a PATHS ${CMAKE_SOURCE_DIR}/webrtc-native/src/out/Default/obj)
+if (NOT WEBRTC_LIB)
     message(FATAL_ERROR "Not found WebRTC Libraries!")
 endif ()
 
@@ -222,7 +220,12 @@ add_executable(${PROJECT_NAME}
         audio_device_info.hpp
         audio_config.cpp
         audio_config.hpp
+        settings.cpp
+        settings.hpp
 )
+
+file(GLOB M1 "${CMAKE_SOURCE_DIR}/webrtc-native/src/out/Default/obj/buildtools/third_party/libc++/libc++/*.o")
+file(GLOB M2 "${CMAKE_SOURCE_DIR}/webrtc-native/src/out/Default/obj/buildtools/third_party/libc++abi/libc++abi/*.o")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         ${X11_LIBRARIES}
@@ -230,23 +233,22 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         websockets_shared
         nlohmann_json
         portaudio
+        spdlog
+        ${M1}
+        ${M2}
+
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
-        ${CMAKE_SOURCE_DIR}/
+        #        ${CMAKE_SOURCE_DIR}/
         ${CMAKE_SOURCE_DIR}/nlohmann_json/include
         ${CMAKE_SOURCE_DIR}/libwebsockets/include
         ${X11_INCLUDE_DIR}
-        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src
-        ${CMAKE_SOURCE_DIR}/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/abseil-cpp
+        ${CMAKE_SOURCE_DIR}/webrtc-native/src/
+        ${CMAKE_SOURCE_DIR}/webrtc-native/src/third_party/abseil-cpp
         ${CMAKE_SOURCE_DIR}/portaudio/include
+        ${CMAKE_SOURCE_DIR}/spdlog/include
 )
-
-
-
-
-
-
 
 
 #

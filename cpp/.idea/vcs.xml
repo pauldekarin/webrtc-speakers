@@ -2,16 +2,14 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/boringssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/nlohmann_json" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/portaudio" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/webrtc-native-build" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/depot_toolsiz7ex27f/depot_tools" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/flatbuffers/src0t3kt2s8/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/nasmsawvrz_g/nasm" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/re2/srcoxtca28a/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spdlog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/compiler-rt/srch_xeecnt/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/webrtc-native/_bad_scm/src/third_party/libyuv0l2lauz7/libyuv" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/webrtc-native/src/base" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/build" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/buildtools" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/testing" vcs="Git" />
@@ -38,6 +36,8 @@
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/harfbuzz-ng/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/icu" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/instrumented_libs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/instrumented_libs/binaries/msan-chained-origins-focal-lib/sources/guest-oslogin/guest-oslogin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/instrumented_libs/binaries/msan-no-origins-focal-lib/sources/guest-oslogin/guest-oslogin" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/jsoncpp/source" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/libFuzzer/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/webrtc-native/src/third_party/libaom/source/libaom" vcs="Git" />

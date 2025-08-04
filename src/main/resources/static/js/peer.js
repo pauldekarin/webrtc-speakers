@@ -9,36 +9,36 @@ let audioContext;
 let localAudioSource;
 let remoteAudioSource;
 
-const signaling = new SignalingChannel("wss://192.168.0.45:8444/signaling");
+const signaling = new SignalingChannel({
+    "uri":"wss://192.168.0.45:8444/signaling",
+    "onopen": () => {
+        call();
+    },
+    "onmessage": event => {
+        const data = JSON.parse(event.data);
 
-signaling.onmessage = event => {
-    if(!localStream){
-        console.error("Local stream is not ready yet, ignore messages!");
-        return;
+        console.log("Received message: Type - ", data.type);
+
+        switch (data.type){
+            case 'offer':
+                handleOffer(data);
+                break;
+            case 'answer':
+                handleAnswer(data);
+                break;
+            case 'candidate':
+                handleCandidate(data);
+                break;
+        }
     }
-
-    const data = JSON.parse(event.data);
-
-    console.log("Received message: Type - ", data.type);
-
-    switch (data.type){
-        case 'offer':
-            handleOffer(data);
-            break;
-        case 'answer':
-            handleAnswer(data);
-            break;
-        case 'candidate':
-            handleCandidate(data);
-            break;
-    }
-}
+});
 
 async function createPeerConnection(){
     console.log("Create peer connection!");
 
     peerConnection = new RTCPeerConnection();
-
+    peerConnection.addTransceiver("audio", { direction : "recvonly" });
+    peerConnection.addTransceiver("video", { direction : "recvonly" });
     peerConnection.onicecandidate = (event) => {
         const message = {
             "type": "candidate",
@@ -57,41 +57,7 @@ async function createPeerConnection(){
     peerConnection.ontrack = event => {
         console.log("Received remote track:", event.track.kind);
 
-        // Set remote video stream
         remoteVideo.srcObject = event.streams[0];
-
-        // Handle audio tracks specifically
-        if (event.track.kind === 'audio') {
-            // Create a MediaStreamAudioSourceNode from the remote stream
-            const remoteStream = event.streams[0];
-            remoteAudioSource = audioContext.createMediaStreamSource(remoteStream);
-
-            // Create an AnalyserNode to process remote audio data
-            const analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048;
-
-            // Connect the audio source to the analyser
-            remoteAudioSource.connect(analyser);
-            // Connect to the audio context destination to hear the audio
-            analyser.connect(audioContext.destination);
-
-            // Process remote audio data
-            const processRemoteAudio = () => {
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Float32Array(bufferLength);
-                analyser.getFloatFrequencyData(dataArray);
-
-                // Example: Log remote audio levels (modify as needed)
-                const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
-                console.log("Remote audio level:", average);
-
-                // Continue processing audio in a loop
-                requestAnimationFrame(processRemoteAudio);
-            };
-
-            // Start processing remote audio
-            processRemoteAudio();
-        }
     }
 
     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
@@ -141,6 +107,7 @@ async function handleCandidate(candidate){
         await peerConnection.addIceCandidate(candidate);
     }
 }
+
 
 async function call(){
     await createPeerConnection();

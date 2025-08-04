@@ -6,14 +6,13 @@
 
 
 void AudioSource::send(const void* audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels,
-    size_t number_of_frames)
+                       size_t number_of_frames)
 {
     if (!this->sink_ || !audio_data)
     {
         return;
     }
 
-    std::cout << "bits per sample: " << bits_per_sample <<  " sample_rate " << sample_rate << " channels " << number_of_channels << " frames " << number_of_frames <<std::endl;
     this->sink_->OnData(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
 }
 
@@ -24,7 +23,7 @@ void AudioSource::silence()
         return;
     }
     const int bits_per_sample = 16; // Common for PCM audio (16-bit samples)
-    const int sample_rate = 44100;  // Common sample rate (44.1 kHz)
+    const int sample_rate = 44100; // Common sample rate (44.1 kHz)
     const size_t number_of_channels = 2; // Stereo
     const size_t number_of_frames = 1024; // Typical frame size (adjust as needed)
 
@@ -40,42 +39,53 @@ void AudioSource::silence()
                         number_of_channels, number_of_frames);
 }
 
-void AudioSource::RegisterObserver(webrtc::ObserverInterface *observer) {
+void AudioSource::RegisterObserver(webrtc::ObserverInterface* observer)
+{
 }
 
-void AudioSource::UnregisterObserver(webrtc::ObserverInterface *observer) {
+void AudioSource::UnregisterObserver(webrtc::ObserverInterface* observer)
+{
 }
 
-webrtc::MediaSourceInterface::SourceState AudioSource::state() const {
+webrtc::MediaSourceInterface::SourceState AudioSource::state() const
+{
     return webrtc::MediaSourceInterface::SourceState::kLive;
 }
 
-bool AudioSource::remote() const {
+bool AudioSource::remote() const
+{
     return false;
 }
 
-void AudioSource::SetVolume(double x) {
+void AudioSource::SetVolume(double x)
+{
 }
 
-void AudioSource::RegisterAudioObserver(AudioObserver *audio_observer) {
+void AudioSource::RegisterAudioObserver(AudioObserver* audio_observer)
+{
 }
 
-void AudioSource::UnregisterAudioObserver(AudioObserver *audio_observer) {
+void AudioSource::UnregisterAudioObserver(AudioObserver* audio_observer)
+{
 }
 
-void AudioSource::AddSink(webrtc::AudioTrackSinkInterface *audio_track_sink_interface) {
+void AudioSource::AddSink(webrtc::AudioTrackSinkInterface* audio_track_sink_interface)
+{
     std::cout << __func__ << std::endl;
     this->sink_ = audio_track_sink_interface;
 }
 
-void AudioSource::RemoveSink(webrtc::AudioTrackSinkInterface *audio_track_sink_interface) {
+void AudioSource::RemoveSink(webrtc::AudioTrackSinkInterface* audio_track_sink_interface)
+{
     std::cout << __func__ << std::endl;
     this->sink_ = nullptr;
 }
 
-const cricket::AudioOptions AudioSource::options() const {
+const cricket::AudioOptions AudioSource::options() const
+{
     return AudioSourceInterface::options();
 }
 
-AudioSource::~AudioSource() {
+AudioSource::~AudioSource()
+{
 }

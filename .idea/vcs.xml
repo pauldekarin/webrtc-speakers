@@ -2,7 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/boringssl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/depot_tools" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/esp32/esp-c3dev/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/esp32/esp-heltec-wb32/libwebsockets" vcs="Git" />
@@ -18,57 +18,8 @@
     <mapping directory="$PROJECT_DIR$/cpp/libwebsockets/minimal-examples/embedded/rt595/hello_world/libwebsockets" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/nlohmann_json" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/portaudio" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/base" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/build" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/buildtools" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/testing" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/boringssl/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/breakpad/breakpad" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/catapult" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/ced/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/clang-format/script" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/colorama/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/compiler-rt/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/crc32c/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/dav1d/libdav1d" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/depot_tools" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/ffmpeg" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/flatbuffers/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/fontconfig/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/freetype/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/fuzztest/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/google_benchmark/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/googletest/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/grpc/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/gtest-parallel" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/harfbuzz-ng/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/icu" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/instrumented_libs" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/jsoncpp/source" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libFuzzer/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libaom/source/libaom" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libc++/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libc++abi/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libjpeg_turbo" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libsrtp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libunwind/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libvpx/source/libvpx" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/libyuv" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/llvm-libc/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/lss" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/nasm" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/openh264/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/perfetto" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/protobuf-javascript/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/third_party/re2/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native-build/3rdParty/webrtc_native/webrtc/src/tools" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/_bad_scm/src/third_party/depot_toolsiz7ex27f/depot_tools" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/_bad_scm/src/third_party/flatbuffers/src0t3kt2s8/src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/_bad_scm/src/third_party/nasmsawvrz_g/nasm" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/_bad_scm/src/third_party/re2/srcoxtca28a/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/_bad_scm/src/third_party/compiler-rt/srch_xeecnt/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/_bad_scm/src/third_party/libyuv0l2lauz7/libyuv" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/build" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/buildtools" vcs="Git" />
@@ -96,6 +47,8 @@
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/harfbuzz-ng/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/icu" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/instrumented_libs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/instrumented_libs/binaries/msan-chained-origins-focal-lib/sources/guest-oslogin/guest-oslogin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/instrumented_libs/binaries/msan-no-origins-focal-lib/sources/guest-oslogin/guest-oslogin" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/jsoncpp/source" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/libFuzzer/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cpp/webrtc-native/src/third_party/libaom/source/libaom" vcs="Git" />
