@@ -125,7 +125,8 @@ async function start(){
     //
     // // Connect the local audio source to the analyser
     // localAudioSource.connect(analyser);
-    // // Connect to the audio context destination to hear the audio locally    // analyser.connect(audioContext.destination);
+    // // Connect to the audio context destination to hear the audio locally
+    // analyser.connect(audioContext.destination);
     //
     // // Process local audio data
     // const processLocalAudio = () => {

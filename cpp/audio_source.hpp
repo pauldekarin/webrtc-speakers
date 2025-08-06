@@ -10,15 +10,15 @@
 
 #include "webrtc_includes.h"
 
-class AudioSource: public webrtc::AudioSourceInterface {
+class AudioSource : public webrtc::AudioSourceInterface
+{
 public:
-    void send(const void *audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels, size_t number_of_frames);
+    void send(const void* audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels,
+              size_t number_of_frames);
 
-    void silence();
+    void RegisterObserver(webrtc::ObserverInterface* observer) override;
 
-    void RegisterObserver(webrtc::ObserverInterface *observer) override;
-
-    void UnregisterObserver(webrtc::ObserverInterface *observer) override;
+    void UnregisterObserver(webrtc::ObserverInterface* observer) override;
 
     SourceState state() const override;
 
@@ -26,21 +26,20 @@ public:
 
     void SetVolume(double) override;
 
-    void RegisterAudioObserver(AudioObserver *) override;
+    void RegisterAudioObserver(AudioObserver*) override;
 
-    void UnregisterAudioObserver(AudioObserver *) override;
+    void UnregisterAudioObserver(AudioObserver*) override;
 
-    void AddSink(webrtc::AudioTrackSinkInterface *) override;
+    void AddSink(webrtc::AudioTrackSinkInterface*) override;
 
-    void RemoveSink(webrtc::AudioTrackSinkInterface *) override;
+    void RemoveSink(webrtc::AudioTrackSinkInterface*) override;
 
     const cricket::AudioOptions options() const override;
 
     ~AudioSource() override;
 
-    webrtc::AudioTrackSinkInterface *sink_ = nullptr;
+    webrtc::AudioTrackSinkInterface* sink_ = nullptr;
 };
-
 
 
 #endif //AUDIO_SOURCE_H

@@ -5,6 +5,7 @@
 #include "signaling_client.hpp"
 
 #include <utility>
+#include <sys/stat.h>
 
 #include "conductor.hpp"
 #include "spdlog/spdlog.h"
@@ -13,12 +14,13 @@
 Messages::Messages():
     running_(true), wsi_(nullptr)
 {
+    this->setup_logger_();
     this->loop_thread_ = std::thread(&Messages::loop_, this);
 }
 
 void Messages::send(const std::string& message)
 {
-    lwsl_user("[%s] Pull message: %s", __func__, message.c_str());
+    this->logger_->info("Push to queue message: {}", message);
     std::lock_guard<std::mutex> lock(this->queue_mutex_);
     this->queue_.push(message);
     this->loop_cv_.notify_all();
@@ -47,7 +49,6 @@ void Messages::loop_()
     {
         std::unique_lock<std::mutex> lock(this->loop_mutex_);
 
-        lwsl_user("Park");
         this->loop_cv_.wait(lock, [&]
         {
             return !this->running_.load() || (this->wsi_ != nullptr && !this->queue_.empty());
@@ -65,16 +66,21 @@ void Messages::loop_()
     }
 }
 
+void Messages::setup_logger_()
+{
+    this->logger_ = spdlog::create<log_sink>("Messages");
+}
+
 
 void Messages::send_(const std::string& message) const
 {
     if (this->wsi_ == nullptr)
     {
-        lwsl_user("Cannot send: locked or invalid wsi");
+        this->logger_->error("Cannot send: locked or invalid wsi");
         return;
     }
 
-    lwsl_user("Send message: %s", message.c_str());
+    this->logger_->info("Send message: %s", message.c_str());
 
     unsigned char buf[LWS_PRE + message.size() + 1];
     memset(buf, 0, LWS_PRE + message.size() + 1);
@@ -82,7 +88,7 @@ void Messages::send_(const std::string& message) const
 
     if (lws_write(this->wsi_, buf + LWS_PRE, message.size(), LWS_WRITE_TEXT) < 0)
     {
-        lwsl_err("Failed to write to wsi");
+        this->logger_->error("Failed to write to wsi");
         return;
     }
 
@@ -108,7 +114,6 @@ SignalingClient::~SignalingClient()
     this->SignalingClient::disconnect();
 }
 
-
 void SignalingClient::send(const std::string& message)
 {
     this->messages_->send(message);
@@ -116,7 +121,7 @@ void SignalingClient::send(const std::string& message)
 
 void SignalingClient::receive(const char* p_message, const long len)
 {
-    if (p_message == nullptr || len == 0)
+    if (p_message == nullptr || len == 0 || this->wsi_ == nullptr)
     {
         return;
     }
@@ -134,6 +139,10 @@ void SignalingClient::receive(const char* p_message, const long len)
         if (this->conductor_)
         {
             this->conductor_->handle_message(message);
+        }
+        else
+        {
+            this->logger_->error("Conductor is nullptr. Skip this message");
         }
     }
 }
@@ -163,12 +172,7 @@ void SignalingClient::connect(const std::string& url)
         return;
     }
 
-
-    this->wsi_ = conn;
-    this->messages_->set_wsi(this->wsi_);
     this->service_thread_ = std::thread(&SignalingClient::loop_, this);
-
-    this->logger_->info("Connected to {}", url);
 }
 
 
@@ -258,6 +262,14 @@ address SignalingClient::parse_url_(const std::string& url)
     return result;
 }
 
+void SignalingClient::established_(struct lws* wsi)
+{
+    this->logger_->info("Connection established");
+
+    this->wsi_ = wsi;
+    this->messages_->set_wsi(wsi);
+}
+
 void SignalingClient::setup_context_()
 {
     this->logger_->info("Setting up context");
@@ -293,7 +305,7 @@ void SignalingClient::setup_logger_(std::string logger_name)
 int SignalingClient::callback_(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
 {
     lws_context* lws_ctx = lws_get_context(wsi);
-    auto* client = static_cast<SignalingClientInterface*>(lws_context_user(lws_ctx));
+    auto* client = static_cast<SignalingClient*>(lws_context_user(lws_ctx));
 
     switch (reason)
     {
@@ -307,14 +319,21 @@ int SignalingClient::callback_(struct lws* wsi, enum lws_callback_reasons reason
     case LWS_CALLBACK_CLIENT_RECEIVE:
         if (client != nullptr && in != nullptr)
         {
-            client->receive(static_cast<const char*>(in), len);
+            try
+            {
+                client->receive(static_cast<const char*>(in), len);
+            }
+            catch (std::exception& e)
+            {
+                spdlog::error("Received exception: {}", e.what());
+            }
         }
         break;
 
     case LWS_CALLBACK_CLIENT_ESTABLISHED:
         if (client)
         {
-            spdlog::info("Signaling client {} established", client->describe());
+            client->established_(wsi);
         }
 
         lws_callback_on_writable(wsi);

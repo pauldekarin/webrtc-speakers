@@ -20,6 +20,10 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.24.3")
     implementation("org.apache.logging.log4j:log4j-api:2.24.3")
     implementation("org.slf4j:slf4j-api:2.0.17")
+    implementation("com.fasterxml.jackson:jackson-bom:2.15.2")
+
+    compileOnly ("org.projectlombok:lombok:1.18.30") // Use the latest stable version
+    annotationProcessor ("org.projectlombok:lombok:1.18.30") // Use the same version
 }
 
 tasks.test {

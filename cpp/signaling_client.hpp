@@ -36,6 +36,7 @@ public:
 private:
     void send_(const std::string& message) const;
     void loop_();
+    void setup_logger_();
 
     struct lws* wsi_;
     std::atomic<bool> running_;
@@ -46,6 +47,8 @@ private:
     std::condition_variable loop_cv_;
     std::mutex loop_mutex_;
     std::thread loop_thread_;
+
+    std::shared_ptr<spdlog::logger> logger_;
 };
 
 typedef struct
@@ -75,6 +78,7 @@ private:
     static int callback_(struct lws* wsi, enum lws_callback_reasons reason, void* userdata, void* in, size_t len);
     static address parse_url_(const std::string& url);
 
+    void established_(struct lws* wsi);
     void setup_context_();
     void setup_logger_(std::string logger_name);
     void loop_();

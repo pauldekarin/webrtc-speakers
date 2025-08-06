@@ -2,9 +2,10 @@
 // Created by bimba on 27.06.25.
 //
 
-#include "peer_connection.hpp"
-
+#include "rtc_client.hpp"
+#include "conductor.hpp"
 #include "spdlog/spdlog.h"
+
 
 void AudioReceiver::OnData(const void* audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels,
                            size_t number_of_frames)
@@ -16,8 +17,6 @@ void AudioReceiver::OnData(const void* audio_data, int bits_per_sample, int samp
 
     this->sink_->send(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
 }
-
-#include "conductor.hpp"
 
 AudioReceiver::AudioReceiver(AudioSource* sink):
     sink_(sink)
@@ -40,18 +39,24 @@ void VideoReceiver::OnFrame(const webrtc::VideoFrame& frame)
 }
 
 
-PeerConnection::PeerConnection(Conductor* conductor):
-    conductor_(conductor)
+RtcClient::RtcClient(const std::string& id, Conductor* conductor):
+    conductor_(conductor), id_(id)
 {
     this->setup_logger_();
 }
 
-PeerConnection::~PeerConnection()
+RtcClient::~RtcClient()
 {
+    for (auto it = this->peer_connections_.begin(); it != this->peer_connections_.end(); ++it)
+    {
+        it->get()->Release();
+    }
+
+    this->peer_connections_.clear();
 }
 
 
-void PeerConnection::create_peer_connection()
+void RtcClient::create_peer_connection()
 {
     this->logger_->info("Setting up signaling thread");
     this->signaling_thread_ = rtc::Thread::CreateWithSocketServer();
@@ -120,7 +125,7 @@ void PeerConnection::create_peer_connection()
     }
 }
 
-void PeerConnection::handle_offer(const std::string& sdp)
+void RtcClient::handle_offer(const std::string& sdp)
 {
     const absl::optional<webrtc::SdpType> sdp_type = webrtc::SdpTypeFromString("offer");
     if (!sdp_type)
@@ -141,9 +146,16 @@ void PeerConnection::handle_offer(const std::string& sdp)
     this->peer_connection_->CreateAnswer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
 }
 
-void PeerConnection::handle_candidate(const nlohmann::json& data)
+void RtcClient::handle_candidate(const nlohmann::json& data)
 {
-    std::cout << "=====" << __func__ << "=====" << std::endl;
+    if (data.at("candidate").get<std::string>() == "null")
+    {
+        this->logger_->info("Received null candidate");
+
+        return;
+    }
+
+    this->logger_->info("Handle ICE candidate");
 
     int sdp_mlineindex = data.at("sdpMLineIndex").get<int>();
     std::string sdp_mid = data.at("sdpMid").get<std::string>();
@@ -159,72 +171,87 @@ void PeerConnection::handle_candidate(const nlohmann::json& data)
 
     if (!this->peer_connection_->AddIceCandidate(candidate.get()))
     {
+        this->logger_->error("Failed to add ICE candidate. Error: ");
         std::cerr << "failed to add IceCandidate" << std::endl;
     }
 
     std::cout << "added ice candidate" << std::endl;
 }
 
-void PeerConnection::OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state)
+void RtcClient::send_json(nlohmann::json& data)
+{
+    if (!this->conductor_)
+    {
+        this->logger_->error("Failed to send message. Conductor is nullptr");
+
+        return;
+    }
+
+    data["client_id"] = this->id_;
+
+    this->conductor_->send_message(data.dump());
+}
+
+void RtcClient::OnSignalingChange(webrtc::PeerConnectionInterface::SignalingState new_state)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
 }
 
-void PeerConnection::OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> media_stream_interface)
+void RtcClient::OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> media_stream_interface)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnAddStream(media_stream_interface);
 }
 
-void PeerConnection::OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> media_stream_interface)
+void RtcClient::OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> media_stream_interface)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnRemoveStream(media_stream_interface);
 }
 
-void PeerConnection::OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel)
+void RtcClient::OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
 }
 
-void PeerConnection::OnRenegotiationNeeded()
+void RtcClient::OnRenegotiationNeeded()
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnRenegotiationNeeded();
 }
 
-void PeerConnection::OnNegotiationNeededEvent(uint32_t uint32)
+void RtcClient::OnNegotiationNeededEvent(uint32_t uint32)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnNegotiationNeededEvent(uint32);
 }
 
-void PeerConnection::OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState ice_connection_state)
+void RtcClient::OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState ice_connection_state)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
 
     PeerConnectionObserver::OnIceConnectionChange(ice_connection_state);
 }
 
-void PeerConnection::OnStandardizedIceConnectionChange(
+void RtcClient::OnStandardizedIceConnectionChange(
     webrtc::PeerConnectionInterface::IceConnectionState ice_connection_state)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnStandardizedIceConnectionChange(ice_connection_state);
 }
 
-void PeerConnection::OnConnectionChange(webrtc::PeerConnectionInterface::PeerConnectionState peer_connection_state)
+void RtcClient::OnConnectionChange(webrtc::PeerConnectionInterface::PeerConnectionState peer_connection_state)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnConnectionChange(peer_connection_state);
 }
 
-void PeerConnection::OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState new_state)
+void RtcClient::OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState new_state)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
 }
 
-void PeerConnection::OnIceCandidate(const webrtc::IceCandidateInterface* candidate)
+void RtcClient::OnIceCandidate(const webrtc::IceCandidateInterface* candidate)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
 
@@ -246,14 +273,13 @@ void PeerConnection::OnIceCandidate(const webrtc::IceCandidateInterface* candida
         {"candidate", sdp},
         {"sdpMid", candidate->sdp_mid()},
         {"sdpMLineIndex", candidate->sdp_mline_index()},
-
     };
 
-    this->conductor_->send_message(data.dump());
+    this->send_json(data);
 }
 
-void PeerConnection::OnIceCandidateError(const std::string& basic_string, int i, const std::string& string, int i1,
-                                         const std::string& basic_string1)
+void RtcClient::OnIceCandidateError(const std::string& basic_string, int i, const std::string& string, int i1,
+                                    const std::string& basic_string1)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnIceCandidateError(basic_string, i, string, i1, basic_string1);
@@ -265,28 +291,28 @@ void PeerConnection::OnIceCandidateError(const std::string& basic_string, int i,
     std::cout << "=====" << __func__ << "=====" << std::endl;
 }
 
-void PeerConnection::OnIceCandidatesRemoved(const std::vector<cricket::Candidate>& candidates)
+void RtcClient::OnIceCandidatesRemoved(const std::vector<cricket::Candidate>& candidates)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnIceCandidatesRemoved(candidates);
 }
 
-void PeerConnection::OnIceConnectionReceivingChange(bool cond)
+void RtcClient::OnIceConnectionReceivingChange(bool cond)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnIceConnectionReceivingChange(cond);
 }
 
-void PeerConnection::OnIceSelectedCandidatePairChanged(
+void RtcClient::OnIceSelectedCandidatePairChanged(
     const cricket::CandidatePairChangeEvent& candidate_pair_change_event)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnIceSelectedCandidatePairChanged(candidate_pair_change_event);
 }
 
-void PeerConnection::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> rtp_receiver_interface,
-                                const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
-                                media_stream_interfaces)
+void RtcClient::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> rtp_receiver_interface,
+                           const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
+                           media_stream_interfaces)
 {
     std::cout << "=====OnAddTrack=====" << std::endl;
     auto* track = rtp_receiver_interface->track().release();
@@ -307,7 +333,7 @@ void PeerConnection::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface>
     track->Release();
 }
 
-void PeerConnection::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> rtp_transceiver_interface)
+void RtcClient::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> rtp_transceiver_interface)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnTrack(rtp_transceiver_interface);
@@ -317,19 +343,19 @@ void PeerConnection::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface>
     std::cout << "=====" << __func__ << "=====" << std::endl;
 }
 
-void PeerConnection::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> rtp_receiver_interface)
+void RtcClient::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> rtp_receiver_interface)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnRemoveTrack(rtp_receiver_interface);
 }
 
-void PeerConnection::OnInterestingUsage(int i)
+void RtcClient::OnInterestingUsage(int i)
 {
     std::cout << "=====" << __func__ << "=====" << std::endl;
     PeerConnectionObserver::OnInterestingUsage(i);
 }
 
-void PeerConnection::OnSuccess(webrtc::SessionDescriptionInterface* desc)
+void RtcClient::OnSuccess(webrtc::SessionDescriptionInterface* desc)
 {
     std::cout << "PeerConnection::OnSuccess" << std::endl;
 
@@ -344,20 +370,15 @@ void PeerConnection::OnSuccess(webrtc::SessionDescriptionInterface* desc)
         {"sdp", sdp}
     };
 
-    std::cout << offer.dump(4) << std::endl;
-
-    if (this->conductor_ != nullptr)
-    {
-        this->conductor_->send_message(offer.dump());
-    }
+    this->send_json(offer);
 }
 
-void PeerConnection::OnFailure(webrtc::RTCError error)
+void RtcClient::OnFailure(webrtc::RTCError error)
 {
 }
 
-void PeerConnection::handle(const void* audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels,
-                            size_t number_of_frames)
+void RtcClient::handle(const void* audio_data, int bits_per_sample, int sample_rate, size_t number_of_channels,
+                       size_t number_of_frames)
 {
     if (!this->audio_track_source_)
     {
@@ -367,9 +388,9 @@ void PeerConnection::handle(const void* audio_data, int bits_per_sample, int sam
     this->audio_track_source_->send(audio_data, bits_per_sample, sample_rate, number_of_channels, number_of_frames);
 }
 
-void PeerConnection::setup_logger_()
+void RtcClient::setup_logger_()
 {
-    this->logger_ = spdlog::create<log_sink>(this->class_name_);
+    this->logger_ = spdlog::create<log_sink>("RtcClient-" + this->id_);
 }
 
 webrtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> createFactory()

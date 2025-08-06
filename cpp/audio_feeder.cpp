@@ -11,13 +11,8 @@
 
 bool AudioFeeder::library_loaded = false;
 
-AudioFeeder::AudioFeeder(AudioConfig config): AudioFeeder(config, nullptr)
-{
-}
-
-
-AudioFeeder::AudioFeeder(AudioConfig config, AudioHandlerInterface* sink):
-    sink_(sink), config_(config), stream_(nullptr), data_(new paData{.feeder = this})
+AudioFeeder::AudioFeeder(AudioConfig config):
+    config_(config), stream_(nullptr), data_(new paData{.feeder = this})
 {
     this->setup_logger_();
 
@@ -75,7 +70,7 @@ void AudioFeeder::start(AudioDeviceInfo info)
 
     parameters.channelCount = this->config_.getChannels();
     parameters.sampleFormat = sampleFormat;
-    parameters.device = info.getIndex();
+    parameters.device = info.get_index();
     parameters.suggestedLatency = p_info->defaultLowInputLatency;
     parameters.hostApiSpecificStreamInfo = nullptr;
 
@@ -92,7 +87,7 @@ void AudioFeeder::start(AudioDeviceInfo info)
         throw std::runtime_error("AudioFeeder::open_stream() failed");
     }
 
-    this->logger_->info("Trying to open stream");
+    this->logger_->info("Trying to start stream");
 
     err = Pa_StartStream(stream);
 
@@ -105,7 +100,7 @@ void AudioFeeder::start(AudioDeviceInfo info)
 
     this->stream_ = stream;
 
-    this->logger_->debug("Started streaming on {}", info.str());
+    this->logger_->info("Started streaming on {}", info.str());
 }
 
 void AudioFeeder::stop()
@@ -136,21 +131,23 @@ bool AudioFeeder::is_feeding()
     return this->stream_ != nullptr && Pa_IsStreamActive(this->stream_);
 }
 
-void AudioFeeder::set_sink(AudioHandlerInterface* sink)
+void AudioFeeder::add_sink(AudioHandlerInterface* sink)
 {
-    this->sink_ = sink;
+    this->sinks_.push_back(sink);
 }
 
 void AudioFeeder::on_data(const void* buffer, unsigned long frames_per_buffer)
 {
-    if (!this->sink_ || !buffer)
+    if (this->sinks_.empty() || !buffer)
     {
-        std::cout << this->sink_ << " " << buffer << std::endl;
         return;
     }
 
-    this->sink_->handle(buffer, this->config_.getFormat(), this->config_.getSampleRate(), this->config_.getChannels(),
-                        frames_per_buffer);
+    for (AudioHandlerInterface* sink : this->sinks_)
+    {
+        sink->handle(buffer, this->config_.getFormat(), this->config_.getSampleRate(), this->config_.getChannels(),
+                     frames_per_buffer);
+    }
 }
 
 const AudioConfig AudioFeeder::get_audio_config() const
@@ -172,7 +169,7 @@ std::vector<AudioDeviceInfo> AudioFeeder::get_audio_devices()
     {
         const PaDeviceInfo* p_info = Pa_GetDeviceInfo(i);
         std::string name(p_info->name);
-        AudioDeviceInfo info(name, i);
+        AudioDeviceInfo info(name, i, p_info->maxInputChannels, p_info->maxOutputChannels);
         devices.push_back(info);
     }
 
@@ -200,51 +197,18 @@ int AudioFeeder::callback_(const void* input_buffer, void* output_buffer, unsign
 {
     if (!user_data)
     {
-        std::cerr << "user_data is undefined" << std::endl;
         return paComplete;
     }
-
 
     AudioFeeder* feeder = static_cast<paData*>(user_data)->feeder;
     if (!feeder)
     {
-        std::cerr << "user_data does not contain feeder" << std::endl;
         return paComplete;
-    }
-
-    static int i = 0;
-
-    i += frames_per_buffer;
-
-    if (i > feeder->config_.getSampleRate() * 2000)
-    {
-        return paComplete;
-    }
-
-
-    std::vector<Sample>* recordedSamples = static_cast<std::vector<Sample>*>(static_cast<paData*>(user_data)->data);
-    const Sample* input = static_cast<const Sample*>(input_buffer);
-
-    if (!input)
-    {
-        std::cerr << "No input data available" << std::endl;
-        feeder->on_data(nullptr, frames_per_buffer);
-        return paContinue;
-    }
-
-    // Normalize samples to [-1.0, 1.0] if necessary
-    for (unsigned long i = 0; i < frames_per_buffer * feeder->config_.getChannels(); i++)
-    {
-        recordedSamples->push_back(input[i]);
     }
 
     feeder->on_data(input_buffer, frames_per_buffer);
-    return paContinue;
-}
 
-int AudioFeeder::record_(const void* input_buffer, void* output_buffer, unsigned long frames_per_buffer,
-                         const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* user_data)
-{
+    return paContinue;
 }
 
 bool AudioFeeder::load_library_()
@@ -276,7 +240,7 @@ AudioDeviceInfo AudioFeeder::map_info_(const PaDeviceInfo* info)
             break;
         }
     }
-    return {info->name, index};
+    return {info->name, index, info->maxInputChannels, info->maxOutputChannels};
 }
 
 const PaDeviceInfo* AudioFeeder::map_info_(AudioDeviceInfo info)
@@ -287,7 +251,7 @@ const PaDeviceInfo* AudioFeeder::map_info_(AudioDeviceInfo info)
     {
         const PaDeviceInfo* p_info = Pa_GetDeviceInfo(i);
 
-        if (p_info->name == info.getName())
+        if (p_info->name == info.get_name())
         {
             return p_info;
         }

@@ -29,7 +29,6 @@ class AudioFeeder
 {
 public:
     AudioFeeder(AudioConfig config);
-    AudioFeeder(AudioConfig config, AudioHandlerInterface* sink);
 
     ~AudioFeeder() = default;
 
@@ -37,7 +36,7 @@ public:
     void stop();
     bool is_available();
     bool is_feeding();
-    void set_sink(AudioHandlerInterface* sink);
+    void add_sink(AudioHandlerInterface* sink);
     void on_data(const void* buffer, unsigned long frames_per_buffer);
 
     const AudioConfig get_audio_config() const;
@@ -46,7 +45,6 @@ public:
     AudioDeviceInfo get_default_output_device();
     AudioDeviceInfo get_default_input_device();
 
-    AudioHandlerInterface* sink_;
     AudioConfig config_;
     PaStream* stream_;
     paData* data_;
@@ -56,9 +54,7 @@ public:
     static int callback_(const void* input_buffer, void* output_buffer,
                          unsigned long frames_per_buffer, const PaStreamCallbackTimeInfo* time_info,
                          PaStreamCallbackFlags status_flags, void* user_data);
-    static int record_(const void* input_buffer, void* output_buffer,
-                       unsigned long frames_per_buffer, const PaStreamCallbackTimeInfo* time_info,
-                       PaStreamCallbackFlags status_flags, void* user_data);
+
     static bool load_library_();
     static AudioDeviceInfo map_info_(const PaDeviceInfo* info);
     static const PaDeviceInfo* map_info_(AudioDeviceInfo info);
@@ -67,6 +63,7 @@ public:
 
     std::string logger_name_ = "AudioFeeder";
     std::shared_ptr<spdlog::logger> logger_;
+    std::vector<AudioHandlerInterface*> sinks_;
 };
 
 
